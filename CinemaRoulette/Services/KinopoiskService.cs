@@ -12,7 +12,7 @@ public class KinopoiskService
     {
         _httpClient = httpClient;
         _apiKey = config["KinopoiskApiKey"] ?? throw new InvalidOperationException(
-            "API ключ Кинопоиска не найден. Добавьте его через dotnet user-secrets set \"Kinopoisk:ApiKey\" \"ваш-ключ\"");
+            "API ключ Кинопоиска не найден. Добавьте его через dotnet user-secrets set \"KinopoiskApiKey\" \"ваш-ключ\"");
         _httpClient.DefaultRequestHeaders.Add("X-API-KEY", _apiKey);
         _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
     }
@@ -20,10 +20,10 @@ public class KinopoiskService
     /**
      * получить фильм по названию
      */
-    public async Task<JsonElement> SearchFilmAsync(string keyword)
+    public async Task<string> SearchFilmAsync(string keyword)
     {
         var response = await _httpClient.GetAsync($"{BaseUrl}/api/v2.2/films?keyword={keyword}");
-        return await response.Content.ReadFromJsonAsync<JsonElement>();
+        return await response.Content.ReadAsStringAsync();
     }
     
     /**

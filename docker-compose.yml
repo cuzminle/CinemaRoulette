@@ -1,0 +1,62 @@
+﻿version: '3.8'
+
+services:
+  app:
+    build:
+      context: ./CinemaRoulette  # путь к папке проекта с Dockerfile
+      dockerfile: Dockerfile
+    container_name: cinema-api
+    ports:
+      - "8000:8080"
+      - "8001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Database__Server=${DATABASE__SERVER}
+      - Database__Port=${DATABASE__PORT}
+      - Database__Name=${DATABASE__NAME}
+      - Database__User=${DATABASE__USER}
+      - Database__Password=${DATABASE__PASSWORD}
+      - KinopoiskApiKey=${KINOPOISK_API_KEY}  # Берём из .env файла
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+  app-debug:
+    build:
+      context: ./CinemaRoulette
+      dockerfile: Dockerfile
+      target: debug          # ← используем debug этап
+    container_name: cinema-api-debug
+    ports:
+      - "8002:8082"
+      - "5005:5005"          # ← порт для дебаггера
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Database__Server=db
+      - Database__Port=3306
+      - Database__Name=cinemadb
+      - Database__User=root
+      - Database__Password=rootpassword
+      - KinopoiskApiKey=${KINOPOISK_API_KEY}
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:8.0
+    container_name: cinema-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: cinemadb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

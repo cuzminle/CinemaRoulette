@@ -1,40 +1,54 @@
+using CinemaRoulette.Data;
 using CinemaRoulette.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Привязываем секцию Database к классу
+builder.Services.Configure<DatabaseSettings>(
+    builder.Configuration.GetSection("Database"));
+
+// достаем данные для подключения к БД
+var dbSettings = builder.Configuration.GetSection("Database").Get<DatabaseSettings>()
+                 ?? throw new InvalidOperationException("Настройки БД не найдены");
+
+var connectionString = dbSettings.GetConnectionString();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0))));
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<KinopoiskService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Применяем миграции
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
 );
+
 app.MapControllerRoute(
-    name: "Movie",
-    pattern: "Movie/{id?}",
-    defaults: new { controller = "Blog", action = "Post" }
+    name: "Search",
+    pattern: "{keyword}",
+    defaults: new { controller = "Cinema", action = "Search" }
 );
-app.MapGet("/test-api", async (KinopoiskService kinopoisk) =>
-{
-    var result = await kinopoisk.SearchFilmAsync("Матрица");
-    return result;
-});
 
 app.Run();
