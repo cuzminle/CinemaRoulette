@@ -42,4 +42,25 @@ public class KinopoiskService
         var response = await _httpClient.GetAsync($"{BaseUrl}/api/v2.2/api_keys/{_apiKey}");
         return await response.Content.ReadAsStringAsync();
     }
+
+    // Получить список жанров и их ID
+    public async Task<string> GetFiltersAsync()
+    {
+        var response = await _httpClient.GetAsync($"{BaseUrl}/api/v2.2/films/filters");
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    // Поиск по фильтрам
+    public async Task<string> GetFilmsByFilterAsync(int genreId, int yearFrom, int yearTo, int page = 1)
+    {
+        var url = $"{BaseUrl}/api/v2.2/films" +
+            $"?genres={genreId}" +
+            $"&yearFrom={yearFrom}" +
+            $"&yearTo={yearTo}" +
+            $"&page={page}" +
+            $"&order=RATING" +
+            $"&type=FILM";
+        var response = await _httpClient.GetAsync(url);
+        return await response.Content.ReadAsStringAsync();
+    }
 }

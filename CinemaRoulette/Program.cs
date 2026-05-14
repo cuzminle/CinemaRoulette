@@ -16,11 +16,10 @@ var connectionString = dbSettings.GetConnectionString();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0))));
-
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<KinopoiskService>();
-
+builder.Services.AddScoped<FilmService>();
 var app = builder.Build();
 
 // Применяем миграции
@@ -46,9 +45,9 @@ app.MapControllerRoute(
 );
 
 app.MapControllerRoute(
-    name: "Search",
-    pattern: "{keyword}",
-    defaults: new { controller = "Cinema", action = "Search" }
+    name: "GetRandomFilm",
+    pattern: "Cinema/Random/{genreId}/{yearFrom}/{yearTo}",
+    defaults: new { controller = "Cinema", action = "GetRandomFilm" }
 );
 
 app.Run();

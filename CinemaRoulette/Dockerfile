@@ -21,9 +21,22 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "CinemaRoulette.dll"]
 
-# ── Этап для дебага ──────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS debug
+# ── Этап для разработки — полный SDK внутри ──────────────
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
 WORKDIR /app
+
+# Устанавливаем инструменты
+RUN dotnet tool install --global dotnet-ef  \
+    && dotnet tool install --global dotnet-watch
+
+# Добавляем глобальные инструменты в PATH
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# vsdbg для Rider
+RUN apt-get update && apt-get install -y unzip curl && \
+    curl -sSL https://aka.ms/getvsdbgsh | bash /dev/stdin -v latest -l /vsdbg
+
+WORKDIR /src
 COPY ["CinemaRoulette.csproj", "./"]
 RUN dotnet restore "CinemaRoulette.csproj"
 COPY . .
@@ -31,5 +44,7 @@ COPY . .
 # Устанавливаем vsdbg для Rider
 RUN apt-get update && apt-get install -y unzip curl && \
     curl -sSL https://aka.ms/getvsdbgsh | bash /dev/stdin -v latest -l /vsdbg
+
+RUN dotnet build
 
 ENTRYPOINT ["dotnet", "run", "--project", "CinemaRoulette.csproj"]

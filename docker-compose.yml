@@ -17,31 +17,12 @@ services:
       - Database__User=${DATABASE__USER}
       - Database__Password=${DATABASE__PASSWORD}
       - KinopoiskApiKey=${KINOPOISK_API_KEY}  # Берём из .env файла
+    volumes:
+      - ./CinemaRoulette:/src  # монтируем код — изменения сразу в контейнере
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
-  app-debug:
-    build:
-      context: ./CinemaRoulette
-      dockerfile: Dockerfile
-      target: debug          # ← используем debug этап
-    container_name: cinema-api-debug
-    ports:
-      - "8002:8082"
-      - "5005:5005"          # ← порт для дебаггера
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - Database__Server=db
-      - Database__Port=3306
-      - Database__Name=cinemadb
-      - Database__User=root
-      - Database__Password=rootpassword
-      - KinopoiskApiKey=${KINOPOISK_API_KEY}
-      - DOTNET_USE_POLLING_FILE_WATCHER=1
-    depends_on:
-      db:
-        condition: service_healthy
   db:
     image: mysql:8.0
     container_name: cinema-mysql
