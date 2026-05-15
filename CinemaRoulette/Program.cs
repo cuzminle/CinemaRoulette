@@ -16,10 +16,21 @@ var connectionString = dbSettings.GetConnectionString();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0))));
+
+// добавляем корс для фронта
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<KinopoiskService>();
 builder.Services.AddScoped<FilmService>();
+builder.Services.AddScoped<FiltersService>();
 var app = builder.Build();
 
 // Применяем миграции
@@ -36,6 +47,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+app.UseCors("Frontend");
 app.UseRouting();
 app.UseAuthorization();
 
@@ -50,4 +62,8 @@ app.MapControllerRoute(
     defaults: new { controller = "Cinema", action = "GetRandomFilm" }
 );
 
+app.MapGet("/test", (FiltersService filtersService) =>
+{
+    return filtersService.SaveFiltersDb();
+});
 app.Run();

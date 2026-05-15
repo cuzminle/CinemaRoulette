@@ -10,7 +10,9 @@ public class AppDbContext : DbContext
     }
     
     public DbSet<Film>  Films { get; set; }
-    
+    public DbSet<Country>  Countries { get; set; }
+    public DbSet<Genre>  Genres { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)

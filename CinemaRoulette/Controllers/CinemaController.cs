@@ -16,6 +16,6 @@ public class CinemaController:Controller
     public async Task<IActionResult> GetRandomFilm(int genreId, int yearFrom, int yearTo)
     {
         var result = await _filmService.GetRandomFilmAsync(genreId, yearFrom, yearTo);
-        return Content(result.ToString(), "application/json");;
+        return Content(result.ToString(), "application/json");
     }
 }
