@@ -1,6 +1,6 @@
 using CinemaRoulette.Services;
 using Microsoft.AspNetCore.Mvc;
-
+using CinemaRoulette.DTOs;
 namespace CinemaRoulette.Controllers;
 
 public class CinemaController:Controller
@@ -13,9 +13,9 @@ public class CinemaController:Controller
     }
 
     // ищем кино по id
-    public async Task<IActionResult> GetRandomFilm(int genreId, int yearFrom, int yearTo)
+    public async Task<IActionResult> GetRandomFilm([FromQuery] FilterQuery query)
     {
-        var result = await _filmService.GetRandomFilmAsync(genreId, yearFrom, yearTo);
+        var result = await _filmService.GetRandomFilmAsync(query);
         return Content(result.ToString(), "application/json");
     }
 }

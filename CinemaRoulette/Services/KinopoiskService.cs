@@ -1,4 +1,6 @@
 using System.Text.Json;
+using CinemaRoulette.DTOs;
+using Newtonsoft.Json.Linq;
 
 namespace CinemaRoulette.Services;
 
@@ -44,20 +46,21 @@ public class KinopoiskService
     }
 
     // Получить список жанров и их ID
-    public async Task<string> GetFiltersAsync()
+    public async Task<JObject> GetFiltersAsync()
     {
-        var response = await _httpClient.GetAsync($"{BaseUrl}/api/v2.2/films/filters");
-        return await response.Content.ReadAsStringAsync();
+        var response = await _httpClient.GetStringAsync($"{BaseUrl}/api/v2.2/films/filters");
+        return JObject.Parse(response);
     }
 
     // Поиск по фильтрам
-    public async Task<string> GetFilmsByFilterAsync(int genreId, int yearFrom, int yearTo, int page = 1)
+    public async Task<string> GetFilmsByFilterAsync(FilterQuery filterQuery)
     {
         var url = $"{BaseUrl}/api/v2.2/films" +
-            $"?genres={genreId}" +
-            $"&yearFrom={yearFrom}" +
-            $"&yearTo={yearTo}" +
-            $"&page={page}" +
+            $"?genres={filterQuery.GenreId}" +
+            $"?countries={filterQuery.CountryId}" +
+            $"&yearFrom={filterQuery.YearFrom}" +
+            $"&yearTo={filterQuery.YearTo}" +
+            $"&page=1" +
             $"&order=RATING" +
             $"&type=FILM";
         var response = await _httpClient.GetAsync(url);

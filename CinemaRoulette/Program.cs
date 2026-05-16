@@ -52,18 +52,26 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}"
-);
-
-app.MapControllerRoute(
     name: "GetRandomFilm",
     pattern: "Cinema/Random/{genreId}/{yearFrom}/{yearTo}",
     defaults: new { controller = "Cinema", action = "GetRandomFilm" }
 );
 
-app.MapGet("/test", (FiltersService filtersService) =>
-{
-    return filtersService.SaveFiltersDb();
-});
+app.MapControllerRoute(
+    name: "GetFilters",
+    pattern: "Filters/GetFilters",
+    defaults: new { controller = "Filters", action = "GetFilters" }
+);
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
+
+
+// app.MapGet("/test", (FiltersService filtersService) =>
+// {
+//     Console.WriteLine(filtersService.SaveFiltersDb().Result);
+//     return filtersService.SaveFiltersDb().Result;
+// });
 app.Run();

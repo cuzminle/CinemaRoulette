@@ -1,3 +1,5 @@
+using System.Reflection;
+using CinemaRoulette.Data.Configurations;
 using CinemaRoulette.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,5 +34,9 @@ public class AppDbContext : DbContext
                 ServerVersion.AutoDetect(dbSettings.GetConnectionString())
             );
         }
+    }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

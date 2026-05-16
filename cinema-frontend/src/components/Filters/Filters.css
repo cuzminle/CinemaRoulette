@@ -22,3 +22,10 @@ input[type='range']::-moz-range-track {
     height: 8px;
     border-radius: 9999px;
 }
+.film-button {
+    background-image: linear-gradient(to bottom, oklch(82.8% 0.189 84.429), oklch(66.6% 0.179 58.318));
+}
+
+.film-button:hover {
+    background-image: linear-gradient(to top, oklch(82.8% 0.189 84.429), oklch(66.6% 0.179 58.318));
+}

@@ -1,4 +1,5 @@
 using CinemaRoulette.Data;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 
 namespace CinemaRoulette.Services;
@@ -14,9 +15,14 @@ public class FiltersService
         _dbContext = dbContext;
     }
 
-    public async Task<string> SaveFiltersDb()
+    public async Task<JObject> GetFiltersDb()
     {
-        var json = await _kinopoiskService.GetFiltersAsync();
-        return json;
+        var genres = await _dbContext.Genres.ToListAsync();
+        var countries = await _dbContext.Countries.ToListAsync();
+        return new JObject
+        {
+            ["genres"] = JArray.FromObject(genres),
+            ["countries"] = JArray.FromObject(countries),
+        };
     }
 }

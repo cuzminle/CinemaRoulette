@@ -1,4 +1,5 @@
 using CinemaRoulette.Data;
+using CinemaRoulette.DTOs;
 using CinemaRoulette.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
@@ -16,10 +17,10 @@ public class FilmService
         _dbContext = dbContext;
     }
 
-    public async Task<JObject> GetRandomFilmAsync(int genreId, int yearFrom, int yearTo)
+    public async Task<JObject> GetRandomFilmAsync(FilterQuery query)
     {
         // Получаем первую страницу чтобы узнать totalPages
-        var json = await _kinopoiskService.GetFilmsByFilterAsync(genreId, yearFrom, yearTo, page: 1);
+        var json = await _kinopoiskService.GetFilmsByFilterAsync(query);
         var root = JObject.Parse(json);
         int totalPages = (int)root["totalPages"]!;
         // Берём случайную страницу
