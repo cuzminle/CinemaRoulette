@@ -1,4 +1,4 @@
-const KINOPOISK_API_URL = 'https://kinopoiskapiunofficial.ech/api'
+const KINOPOISK_API_URL = 'https://kinopoiskapiunofficial.tech/api'
 const KINOPOISK_API_KEY = import.meta.env.VITE_KINOPOISK_KEY
 
 export const getRandomFilm = async ({ genres = [], countries = [], duration, yearFrom, yearTo }) => {
