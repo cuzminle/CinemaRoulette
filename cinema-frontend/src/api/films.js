@@ -1,29 +1,43 @@
-const API_URL = import.meta.env.VITE_API_URL;
+const KINOPOISK_API_URL = 'https://kinopoiskapiunofficial.юtech/api'
+const KINOPOISK_API_KEY = import.meta.env.KINOPOISK_KEY
 
 export const getRandomFilm = async ({ genres = [], countries = [], duration, yearFrom, yearTo }) => {
     const params = new URLSearchParams()
 
-    genres.forEach(id => params.append('genreId', id))
-    countries.forEach(id => params.append('countryId', id))
+    genres.forEach(id => params.append('genres[0].id', id))
+    countries.forEach(id => params.append('countries[0].id', id))
 
     if (duration) params.append('duration', duration)
     if (yearFrom) params.append('yearFrom', yearFrom)
     if (yearTo) params.append('yearTo', yearTo)
 
-    const response = await fetch(`${API_URL}/Cinema/GetRandomFilm?${params}`)
-    return response.json()
+    const response = await fetch(`${KINOPOISK_API_URL}/v2.2/films?${params}`, {
+        headers: {
+            'X-API-KEY': KINOPOISK_API_KEY,
+            'Content-Type': 'application/json',
+        }
+    })
+    const data = await response.json()
+    const films = data.items ?? []
+    return films[Math.floor(Math.random() * films.length)]
 }
 
 export const searchFilm = async (keyword) => {
-    const response = await fetch(
-        `${API_URL}/Cinema/Search?keyword=${keyword}`
-    );
+    const response = await fetch(`${KINOPOISK_API_URL}/v2.2/films?keyword=${keyword}`, {
+        headers: {
+            'X-API-KEY': KINOPOISK_API_KEY,
+            'Content-Type': 'application/json',
+        }
+    });
     return response.json();
 };
 
 export const getFilters = async () => {
-    const response = await fetch(
-        `${API_URL}/Filters/GetFilters`
-    );
+    const response = await fetch(`${KINOPOISK_API_URL}/v2.2/films/filters`, {
+        headers: {
+            'X-API-KEY': KINOPOISK_API_KEY,
+            'Content-Type': 'application/json',
+        }
+    });
     return response.json();
 };

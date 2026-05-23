@@ -2,11 +2,10 @@ import './Filters.css'
 import {useEffect, useState, useRef} from "react";
 import {getRandomFilm, getFilters} from "../../api/films.js";
 
-function Filters() {
+function Filters({ onFilmLoaded }) {
     const [loading, setLoading] = useState(false)
     const [rangeValue, setRangeValue] = useState(120)
     const [filters, setFilters] = useState({ genres: [], countries: [] })
-    const [film, setFilm] = useState(null)
     const [selectedGenres, setSelectedGenres] = useState([])
     const [selectedCountries, setSelectedCountries] = useState([])
     const [isOpenGenres, setIsOpenGenres] = useState(false)
@@ -44,25 +43,24 @@ function Filters() {
                 yearFrom,
                 yearTo
             })
-            setFilm(data)
+            onFilmLoaded(data) // <-- вместо setFilm(data)
         } catch (error) {
             console.error('Ошибка:', error)
         } finally {
             setLoading(false)
         }
     }
-
     const toggle = (setter) => (id) => {
         setter(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
     }
 
     const labelGenres = selectedGenres.length === 0
         ? "Выбери жанр"
-        : filters.genres.filter(g => selectedGenres.includes(g.Id)).map(g => g.Title).join(", ")
+        : filters.genres.filter(g => selectedGenres.includes(g.id)).map(g => g.genre).join(", ")
 
     const labelCountries = selectedCountries.length === 0
         ? "Выбери страну"
-        : filters.countries.filter(c => selectedCountries.includes(c.Id)).map(c => c.Title).join(", ")
+        : filters.countries.filter(c => selectedCountries.includes(c.id)).map(c => c.country).join(", ")
 
     const Dropdown = ({ label, isOpen, setIsOpen, items, selected, onToggle, dropRef }) => (
         <div className="relative mb-4.5" ref={dropRef}>
@@ -79,14 +77,14 @@ function Filters() {
             </button>
             {isOpen && (
                 <div className="absolute z-10 w-full mt-1 border border-default-medium rounded-xl max-h-60 overflow-y-auto" style={{ background: '#000' }}>
-                    {items.filter(i => i.Title).map(item => (
-                        <label key={item.Id} className="flex items-center gap-2 px-3 py-2 cursor-pointer" style={{ background: '#000' }}>
+                    {items.filter(i => i.genre || i.country).map(item => (
+                        <label key={item.id} className="flex items-center gap-2 px-3 py-2 cursor-pointer" style={{ background: '#000' }}>
                             <input
                                 type="checkbox"
-                                checked={selected.includes(item.Id)}
-                                onChange={() => onToggle(item.Id)}
+                                checked={selected.includes(item.id)}
+                                onChange={() => onToggle(item.id)}
                             />
-                            {item.Title}
+                            {item.genre ?? item.country}
                         </label>
                     ))}
                 </div>
@@ -95,7 +93,7 @@ function Filters() {
     )
 
     return (
-        <div className="flex text-lg mt-10 ml-50">
+        <div className="flex text-lg mt-10 m-auto md:ml-50">
             <div className="flex flex-col">
                 <label className="block mb-2.5 ml-1 font-bold text-heading">Жанр</label>
                 <Dropdown
