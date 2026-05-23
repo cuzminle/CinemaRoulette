@@ -43,7 +43,7 @@ function Filters({ onFilmLoaded }) {
                 yearFrom,
                 yearTo
             })
-            onFilmLoaded(data) // <-- вместо setFilm(data)
+            onFilmLoaded(data)
         } catch (error) {
             console.error('Ошибка:', error)
         } finally {
@@ -93,7 +93,7 @@ function Filters({ onFilmLoaded }) {
     )
 
     return (
-        <div className="flex text-lg mt-10 m-auto md:ml-50">
+        <div className="flex text-lg mt-3 ml-auto mr-auto md:ml-50 md:mr-0">
             <div className="flex flex-col max-w-sm md:w-96 ml-1 mr-1">
                 <label className="block mb-2.5 ml-1 font-bold text-heading">Жанр</label>
                 <Dropdown
