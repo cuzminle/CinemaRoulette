@@ -94,7 +94,7 @@ function Filters({ onFilmLoaded }) {
 
     return (
         <div className="flex text-lg mt-10 m-auto md:ml-50">
-            <div className="flex flex-col">
+            <div className="flex flex-col max-w-sm md:w-96 ml-1 mr-1">
                 <label className="block mb-2.5 ml-1 font-bold text-heading">Жанр</label>
                 <Dropdown
                     label={labelGenres}
@@ -125,7 +125,7 @@ function Filters({ onFilmLoaded }) {
                        className="w-full h-2 mb-4.5"
                 />
 
-                <div className="w-md">
+                <div className="max-w-sm md:w-96">
                     <label className="block mb-2.5 ml-1 font-bold text-heading">Годы выхода</label>
                     <div className="flex items-center gap-2">
                         <input type="text"
@@ -143,7 +143,7 @@ function Filters({ onFilmLoaded }) {
                 </div>
 
                 <button
-                    className="film-button bg-transparent mt-6 hover:bg-amber-400 text-red-600 font-semibold py-2 px-4 rounded-xl"
+                    className="film-button bg-transparent mt-6 hover:bg-amber-400 text-red-800 font-semibold py-2 px-4 rounded-xl"
                     onClick={handleGetFilm} disabled={loading}
                 >
                     {loading ? 'Загрузка...' : 'Выбрать фильм'}
