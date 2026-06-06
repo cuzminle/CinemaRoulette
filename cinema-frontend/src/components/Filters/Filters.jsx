@@ -81,7 +81,6 @@ function Filters({ onFilmLoaded }) {
         }
         loadFilters()
     }, [])
-    console.log(countrySearch)
     useEffect(() => {
         const handler = (e) => {
             if (genresRef.current && !genresRef.current.contains(e.target)) setIsOpenGenres(false)
