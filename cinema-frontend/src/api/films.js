@@ -1,7 +1,7 @@
 const KINOPOISK_API_URL = 'https://kinopoiskapiunofficial.tech/api'
 const KINOPOISK_API_KEY = import.meta.env.VITE_KINOPOISK_KEY
 
-export const getRandomFilm = async ({ genres = [], countries = [], duration, yearFrom, yearTo }) => {
+export const getRandomFilm = async ({ genres = [], countries = [], duration, yearFrom, yearTo, type }) => {
     const params = new URLSearchParams()
 
     genres.forEach(id => params.append('genres', id))
@@ -10,7 +10,7 @@ export const getRandomFilm = async ({ genres = [], countries = [], duration, yea
     if (duration) params.append('duration', duration)
     if (yearFrom) params.append('yearFrom', yearFrom)
     if (yearTo) params.append('yearTo', yearTo)
-    console.log(params)
+    if (type && type !== 'ALL') params.append('type', type)
     const response = await fetch(`${KINOPOISK_API_URL}/v2.2/films?${params}`, {
         headers: {
             'X-API-KEY': KINOPOISK_API_KEY,

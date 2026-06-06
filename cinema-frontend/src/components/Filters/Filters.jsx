@@ -1,7 +1,54 @@
 import './Filters.css'
 import {useEffect, useState, useRef} from "react";
 import {getRandomFilm, getFilters} from "../../api/films.js";
+const Dropdown = ({ label, isOpen, setIsOpen, items, selected, onToggle, dropRef, searchable, searchValue, onSearch = () => {} }) => {
+    const filteredItems = searchable && searchValue
+        ? items.filter(i => (i.genre || i.country || '').toLowerCase().includes(searchValue.toLowerCase()))
+        : items
 
+    return (
+        <div className="relative mb-4.5" ref={dropRef}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="appearance-none w-full px-3 py-2.5 pr-8 bg-neutral-secondary-medium border border-default-medium text-heading rounded-xl text-left"
+            >
+                <span className="truncate block">{label}</span>
+                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </button>
+            {isOpen && (
+                <div className="absolute z-10 w-full mt-1 border border-default-medium rounded-xl max-h-60 overflow-y-auto" style={{ background: '#000' }}>
+                    {searchable && (
+                        <div className="sticky top-0 p-2" style={{ background: '#000' }}>
+                            <input
+                                type="text"
+                                value={searchValue}
+                                onChange={e => onSearch(e.target.value)}
+                                placeholder="Поиск..."
+                                className="w-full px-3 py-1.5 rounded-lg bg-neutral-secondary-medium border border-default-medium text-heading placeholder:text-body"
+                                onClick={e => e.stopPropagation()}
+                                onMouseDown={e => e.stopPropagation()}
+                            />
+                        </div>
+                    )}
+                    {filteredItems.filter(i => i.genre || i.country).map(item => (
+                        <label key={item.id} className="flex items-center gap-2 px-3 py-2 cursor-pointer" style={{ background: '#000' }}>
+                            <input
+                                type="checkbox"
+                                checked={selected.includes(item.id)}
+                                onChange={() => onToggle(item.id)}
+                            />
+                            {item.genre ?? item.country}
+                        </label>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
 function Filters({ onFilmLoaded }) {
     const [loading, setLoading] = useState(false)
     const [rangeValue, setRangeValue] = useState(120)
@@ -12,18 +59,29 @@ function Filters({ onFilmLoaded }) {
     const [isOpenCountries, setIsOpenCountries] = useState(false)
     const [yearFrom, setYearFrom] = useState('')
     const [yearTo, setYearTo] = useState('')
-
+    const [selectedType, setSelectedType] = useState('ALL')
+    const [countrySearch, setCountrySearch] = useState('')
+    const types = [
+        { id: 'ALL', label: 'Все' },
+        { id: 'FILM', label: 'Фильм' },
+        { id: 'TV_SHOW', label: 'ТВ-шоу' },
+        { id: 'TV_SERIES', label: 'Сериал' },
+        { id: 'MINI_SERIES', label: 'Мини-сериал' },
+    ]
     const genresRef = useRef(null)
     const countriesRef = useRef(null)
 
     useEffect(() => {
         const loadFilters = async () => {
             const data = await getFilters()
-            setFilters(data)
+            setFilters({
+                genres: data.genres.sort((a, b) => a.genre.localeCompare(b.genre)),
+                countries: data.countries.sort((a, b) => a.country.localeCompare(b.country))
+            })
         }
         loadFilters()
     }, [])
-
+    console.log(countrySearch)
     useEffect(() => {
         const handler = (e) => {
             if (genresRef.current && !genresRef.current.contains(e.target)) setIsOpenGenres(false)
@@ -41,7 +99,8 @@ function Filters({ onFilmLoaded }) {
                 countries: selectedCountries,
                 duration: rangeValue,
                 yearFrom,
-                yearTo
+                yearTo,
+                type: selectedType
             })
             onFilmLoaded(data)
         } catch (error) {
@@ -61,36 +120,6 @@ function Filters({ onFilmLoaded }) {
     const labelCountries = selectedCountries.length === 0
         ? "Выбери страну"
         : filters.countries.filter(c => selectedCountries.includes(c.id)).map(c => c.country).join(", ")
-
-    const Dropdown = ({ label, isOpen, setIsOpen, items, selected, onToggle, dropRef }) => (
-        <div className="relative mb-4.5" ref={dropRef}>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="appearance-none w-full px-3 py-2.5 pr-8 bg-neutral-secondary-medium border border-default-medium text-heading rounded-xl text-left"
-            >
-                <span className="truncate block">{label}</span>
-                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
-            </button>
-            {isOpen && (
-                <div className="absolute z-10 w-full mt-1 border border-default-medium rounded-xl max-h-60 overflow-y-auto" style={{ background: '#000' }}>
-                    {items.filter(i => i.genre || i.country).map(item => (
-                        <label key={item.id} className="flex items-center gap-2 px-3 py-2 cursor-pointer" style={{ background: '#000' }}>
-                            <input
-                                type="checkbox"
-                                checked={selected.includes(item.id)}
-                                onChange={() => onToggle(item.id)}
-                            />
-                            {item.genre ?? item.country}
-                        </label>
-                    ))}
-                </div>
-            )}
-        </div>
-    )
 
     return (
         <div className="flex text-lg mt-3 ml-auto mr-auto md:ml-50 md:mr-0">
@@ -113,6 +142,9 @@ function Filters({ onFilmLoaded }) {
                     setIsOpen={setIsOpenCountries}
                     items={filters.countries}
                     selected={selectedCountries}
+                    searchable
+                    searchValue={countrySearch}
+                    onSearch={setCountrySearch}
                     onToggle={toggle(setSelectedCountries)}
                     dropRef={countriesRef}
                 />
@@ -124,7 +156,16 @@ function Filters({ onFilmLoaded }) {
                        onChange={(e) => setRangeValue(Number(e.target.value))}
                        className="w-full h-2 mb-4.5"
                 />
-
+                <label className="block mb-2.5 ml-1 font-bold text-heading">Тип</label>
+                <select
+                    value={selectedType}
+                    onChange={e => setSelectedType(e.target.value)}
+                    className="appearance-none w-full px-3 py-2.5 pr-8 bg-neutral-secondary-medium border border-default-medium text-heading rounded-xl mb-4.5"
+                >
+                    {types.map(t => (
+                        <option key={t.id} value={t.id}>{t.label}</option>
+                    ))}
+                </select>
                 <div className="max-w-sm md:w-96">
                     <label className="block mb-2.5 ml-1 font-bold text-heading">Годы выхода</label>
                     <div className="flex items-center gap-2">
